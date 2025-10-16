@@ -1,7 +1,6 @@
 // ---------------------------------------------
 // NDVI, LST, and UHI ANALYSIS – SOUTHWEST NIGERIA
-// By: Olaleye Daniel (Olaleye Daniel Abimbola)
-// Repo: ndvi-lst-uhi-southwest-nigeria
+// By: Olaleye Daniel
 // ---------------------------------------------
 
 // 1. Define utility to get region from LGA names
@@ -38,7 +37,7 @@ Map.addLayer(ibadan, { color: 'blue' }, 'Ibadan ROI');
 Map.addLayer(osogbo, { color: 'green' }, 'Osogbo ROI');
 Map.addLayer(ondo, { color: 'orange' }, 'Ondo ROI');
 
-// 4. Preprocessing function
+// 4. Preprocessing
 function maskLandsat(img) {
   var qa = img.select('QA_PIXEL');
   var cloud = 1 << 5;
@@ -64,12 +63,12 @@ function getDrySeasonImage(year, geom) {
 
   var median = filtered.median();
 
-  // If no images in filtered collection, return null (handled by calling code)
   return ee.Algorithms.If(
     filtered.size().eq(0),
     null,
     (function () {
       var image = ee.Image(median).clip(geom);
+
       var thermal = isL7 ? image.select('ST_B6') : image.select('ST_B10');
       var nir = isL7 ? image.select('SR_B4') : image.select('SR_B5');
       var red = isL7 ? image.select('SR_B3') : image.select('SR_B4');
@@ -173,6 +172,7 @@ regions.forEach(function(region) {
 
 // 9. UHI Intensity Chart
 var uhiFeatures = [];
+
 years.forEach(function(year) {
   regions.forEach(function(region) {
     var img = getDrySeasonImage(year, region.geom);
@@ -195,6 +195,7 @@ years.forEach(function(year) {
       }).get('LST');
 
       var uhiVal = ee.Number(max).subtract(ee.Number(mean));
+
       var feature = ee.Feature(null, {
         'Region': region.name,
         'Year': year,
@@ -220,5 +221,3 @@ print(ui.Chart.feature.groups({
   lineWidth: 2,
   pointSize: 5
 }));
-
-// End of script
